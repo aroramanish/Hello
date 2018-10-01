@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_helloapp" default="compile.module.helloapp">
+  <dirname property="module.helloapp.basedir" file="${ant.file.module_helloapp}"/>
+  
+  <property name="module.jdk.home.helloapp" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.helloapp" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.helloapp" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.helloapp" value="-encoding UTF-8 -source 10 -target 10 ${compiler.args}"/>
+  
+  <property name="helloapp.output.dir" value="${module.helloapp.basedir}/out/production/HelloApp"/>
+  <property name="helloapp.testoutput.dir" value="${module.helloapp.basedir}/out/test/HelloApp"/>
+  
+  <path id="helloapp.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="helloapp.module.production.classpath">
+    <path refid="${module.jdk.classpath.helloapp}"/>
+  </path>
+  
+  <path id="helloapp.runtime.production.module.classpath">
+    <pathelement location="${helloapp.output.dir}"/>
+  </path>
+  
+  <path id="helloapp.module.classpath">
+    <path refid="${module.jdk.classpath.helloapp}"/>
+    <pathelement location="${helloapp.output.dir}"/>
+  </path>
+  
+  <path id="helloapp.runtime.module.classpath">
+    <pathelement location="${helloapp.testoutput.dir}"/>
+    <pathelement location="${helloapp.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.helloapp">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.helloapp">
+    <patternset refid="excluded.from.module.helloapp"/>
+  </patternset>
+  
+  <path id="helloapp.module.sourcepath">
+    <dirset dir="${module.helloapp.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.helloapp" depends="compile.module.helloapp.production,compile.module.helloapp.tests" description="Compile module HelloApp"/>
+  
+  <target name="compile.module.helloapp.production" depends="register.custom.compilers" description="Compile module HelloApp; production classes">
+    <mkdir dir="${helloapp.output.dir}"/>
+    <javac2 destdir="${helloapp.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.helloapp}/javac">
+      <compilerarg line="${compiler.args.helloapp}"/>
+      <bootclasspath refid="helloapp.module.bootclasspath"/>
+      <classpath refid="helloapp.module.production.classpath"/>
+      <src refid="helloapp.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.helloapp"/>
+    </javac2>
+    
+    <copy todir="${helloapp.output.dir}">
+      <fileset dir="${module.helloapp.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.helloapp.tests" depends="register.custom.compilers,compile.module.helloapp.production" description="compile module HelloApp; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.helloapp" description="cleanup module">
+    <delete dir="${helloapp.output.dir}"/>
+    <delete dir="${helloapp.testoutput.dir}"/>
+  </target>
+</project>
